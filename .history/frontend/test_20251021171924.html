@@ -1822,88 +1822,15 @@ function updateEfficiencyChart(data) {
 }
 
         // ===== INITIALIZATION =====
-        // Replace the existing initializeDashboard function with this:
-function initializeDashboard() {
-    updateStats();
-    renderAlerts();
-    renderDevices();
-    initializeCharts();
-    
-    // Fetch initial data from backend
-    fetchDashboardData();
-    fetchDevicesData();
-    fetchAlertsData();
-    
-    // Initialize WebSocket for real-time updates
-    initializeWebSocket();
-    
-    // Fallback polling if WebSocket not available (optional)
-    setInterval(() => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            fetchDashboardData();
+        function initializeDashboard() {
+            updateStats();
+            renderAlerts();
+            renderDevices();
+            initializeCharts();
+            simulateRealTimeUpdates();
+            // initializeWebSocket(); // Uncomment when backend is ready
+            // fetchDashboardData(); // Uncomment when API is ready
         }
-    }, 30000); // Poll every 30 seconds
-}
-// ===== AUTHENTICATION =====
-window.authToken = null;
-
-async function login(email, password) {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.AUTH.LOGIN, {
-            method: 'POST',
-            body: JSON.stringify({ email, password })
-        });
-        
-        if (data.token) {
-            window.authToken = data.token;
-            console.log('✅ Login successful');
-            return true;
-        }
-    } catch (error) {
-        console.error('❌ Login failed:', error);
-        return false;
-    }
-}
-
-async function register(email, password, name) {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.AUTH.REGISTER, {
-            method: 'POST',
-            body: JSON.stringify({ email, password, name })
-        });
-        
-        console.log('✅ Registration successful');
-        return true;
-    } catch (error) {
-        console.error('❌ Registration failed:', error);
-        return false;
-    }
-}
-
-async function logout() {
-    try {
-        await apiRequest(API_CONFIG.ENDPOINTS.AUTH.LOGOUT, {
-            method: 'POST'
-        });
-        
-        window.authToken = null;
-        if (ws) {
-            ws.close();
-        }
-        console.log('✅ Logout successful');
-    } catch (error) {
-        console.error('❌ Logout failed:', error);
-    }
-}
-
-async function verifyAuth() {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.AUTH.VERIFY);
-        return data.authenticated === true;
-    } catch (error) {
-        return false;
-    }
-}
         
         // ===== ON PAGE LOAD =====
         window.addEventListener('DOMContentLoaded', () => {
@@ -2255,6 +2182,7 @@ async function verifyAuth() {
     }
     
     // Live fetch mode (commented example)
+   // Replace the existing fetchAnalyticsData function with this:
 async function fetchAnalyticsData() {
     try {
         const data = await apiRequest(API_CONFIG.ENDPOINTS.ANALYTICS);

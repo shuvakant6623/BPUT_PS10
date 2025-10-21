@@ -1082,47 +1082,7 @@
     </div>
 
     <script>
-        // ===== BACKEND CONFIGURATION =====
-const API_CONFIG = {
-    BASE_URL: 'http://localhost:5000', // Change this to your backend URL
-    ENDPOINTS: {
-        DASHBOARD: '/api/dashboard',
-        DEVICES: '/api/devices',
-        ANALYTICS: '/api/analytics',
-        ALERTS: '/api/alerts',
-        AUTH: {
-            LOGIN: '/api/auth/login',
-            REGISTER: '/api/auth/register',
-            LOGOUT: '/api/auth/logout',
-            VERIFY: '/api/auth/verify'
-        }
-    },
-    WS_URL: 'ws://localhost:5000/ws' // WebSocket URL for real-time updates
-};
-
-// API Helper Functions
-async function apiRequest(endpoint, options = {}) {
-    const url = API_CONFIG.BASE_URL + endpoint;
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include' // Include cookies for authentication
-    };
-    
-    try {
-        const response = await fetch(url, { ...defaultOptions, ...options });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('API Request failed:', error);
-        throw error;
-    }
-}
         // ===== BACKGROUND ANIMATION =====
         function createSolarParticles() {
             const container = document.getElementById('bgAnimation');
@@ -1630,280 +1590,63 @@ async function apiRequest(endpoint, options = {}) {
         }
 
         // ===== WEBSOCKET CONNECTION (Placeholder) =====
-        // ===== WEBSOCKET CONNECTION =====
-let ws = null;
-let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 5;
-
-function initializeWebSocket() {
-    try {
-        ws = new WebSocket(API_CONFIG.WS_URL);
-        
-        ws.onopen = () => {
-            console.log('✅ WebSocket connected');
-            reconnectAttempts = 0;
+        function initializeWebSocket() {
+            // TODO: Replace with your actual WebSocket URL
+            // const ws = new WebSocket('ws://your-backend-url:port/socket');
             
-            // Send authentication if needed
-            const authToken = window.authToken;
-            if (authToken) {
-                ws.send(JSON.stringify({ 
-                    type: 'auth', 
-                    token: authToken 
-                }));
-            }
-        };
-        
-        ws.onmessage = (event) => {
+            // ws.onopen = () => {
+            //     console.log('WebSocket connected');
+            // };
+            
+            // ws.onmessage = (event) => {
+            //     const data = JSON.parse(event.data);
+            //     // Update UI with real sensor data
+            //     mockSensorData.power = data.power;
+            //     mockSensorData.efficiency = data.efficiency;
+            //     // ... update other fields
+            //     updateStats();
+            // };
+            
+            // ws.onerror = (error) => {
+            //     console.error('WebSocket error:', error);
+            // };
+            
+            // ws.onclose = () => {
+            //     console.log('WebSocket disconnected');
+            //     // Implement reconnection logic
+            // };
+        }
+
+        // ===== FETCH API DATA (Placeholder) =====
+        async function fetchDashboardData() {
             try {
-                const data = JSON.parse(event.data);
-                handleWebSocketMessage(data);
+                // TODO: Replace with your actual API endpoint
+                // const response = await fetch('https://your-backend-url/api/dashboard');
+                // const data = await response.json();
+                // 
+                // mockSensorData.power = data.totalPower;
+                // mockSensorData.efficiency = data.efficiency;
+                // mockSensorData.activeDevices = data.activeDevices;
+                // mockSensorData.savings = data.savings;
+                // 
+                // updateStats();
+                
+                console.log('Fetch API ready for integration');
             } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
+                console.error('Error fetching dashboard data:', error);
             }
-        };
-        
-        ws.onerror = (error) => {
-            console.error('❌ WebSocket error:', error);
-        };
-        
-        ws.onclose = () => {
-            console.log('🔌 WebSocket disconnected');
-            attemptReconnect();
-        };
-        
-    } catch (error) {
-        console.error('Failed to initialize WebSocket:', error);
-        attemptReconnect();
-    }
-}
-
-function attemptReconnect() {
-    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-        reconnectAttempts++;
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-        console.log(`🔄 Reconnecting in ${delay/1000}s... (Attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
-        
-        setTimeout(() => {
-            initializeWebSocket();
-        }, delay);
-    } else {
-        console.error('❌ Max reconnection attempts reached. Please refresh the page.');
-    }
-}
-
-function handleWebSocketMessage(data) {
-    switch(data.type) {
-        case 'sensor_update':
-            updateSensorData(data.payload);
-            break;
-        case 'device_status':
-            updateDeviceStatus(data.payload);
-            break;
-        case 'alert':
-            addAlert(data.payload);
-            break;
-        case 'analytics':
-            updateAnalytics(data.payload);
-            break;
-        default:
-            console.log('Unknown message type:', data.type);
-    }
-}
-
-function updateSensorData(data) {
-    // Update mockSensorData with real values
-    if (data.power !== undefined) mockSensorData.power = data.power;
-    if (data.efficiency !== undefined) mockSensorData.efficiency = data.efficiency;
-    if (data.activeDevices !== undefined) mockSensorData.activeDevices = data.activeDevices;
-    if (data.savings !== undefined) mockSensorData.savings = data.savings;
-    if (data.temperature !== undefined) mockSensorData.temperature = data.temperature;
-    if (data.voltage !== undefined) mockSensorData.voltage = data.voltage;
-    if (data.current !== undefined) mockSensorData.current = data.current;
-    if (data.irradiance !== undefined) mockSensorData.irradiance = data.irradiance;
-    
-    updateStats();
-}
-
-function updateDeviceStatus(devices) {
-    // Update devices array
-    if (Array.isArray(devices)) {
-        mockDevices.length = 0;
-        mockDevices.push(...devices);
-        renderDevices();
-    }
-}
-
-        // ===== FETCH API DATA =====
-async function fetchDashboardData() {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.DASHBOARD);
-        
-        mockSensorData.power = data.totalPower || 0;
-        mockSensorData.efficiency = data.efficiency || 0;
-        mockSensorData.activeDevices = data.activeDevices || 0;
-        mockSensorData.savings = data.savings || 0;
-        mockSensorData.temperature = data.temperature || 0;
-        mockSensorData.voltage = data.voltage || 0;
-        mockSensorData.current = data.current || 0;
-        mockSensorData.irradiance = data.irradiance || 0;
-        
-        updateStats();
-        
-        // Update charts if data includes historical values
-        if (data.powerHistory) {
-            updatePowerChart(data.powerHistory);
         }
-        if (data.efficiencyHistory) {
-            updateEfficiencyChart(data.efficiencyHistory);
-        }
-        
-    } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        // Fallback to mock data if API fails
-        console.log('Using mock data as fallback');
-    }
-}
-
-async function fetchDevicesData() {
-    try {
-        const devices = await apiRequest(API_CONFIG.ENDPOINTS.DEVICES);
-        
-        if (Array.isArray(devices)) {
-            mockDevices.length = 0;
-            mockDevices.push(...devices);
-            renderDevices();
-        }
-    } catch (error) {
-        console.error('Error fetching devices data:', error);
-    }
-}
-
-async function fetchAlertsData() {
-    try {
-        const alerts = await apiRequest(API_CONFIG.ENDPOINTS.ALERTS);
-        
-        if (Array.isArray(alerts)) {
-            alertsHistory = alerts;
-            renderAlerts();
-            updateAlertsCount();
-        }
-    } catch (error) {
-        console.error('Error fetching alerts data:', error);
-    }
-}
-
-function updatePowerChart(data) {
-    if (powerChart && data.labels && data.values) {
-        powerChart.data.labels = data.labels;
-        powerChart.data.datasets[0].data = data.values;
-        powerChart.update();
-    }
-}
-
-function updateEfficiencyChart(data) {
-    if (efficiencyChart && data.labels && data.values) {
-        efficiencyChart.data.labels = data.labels;
-        efficiencyChart.data.datasets[0].data = data.values;
-        
-        // Update colors based on values
-        efficiencyChart.data.datasets[0].backgroundColor = data.values.map(val => {
-            if (val >= 85) return 'rgba(16, 185, 129, 0.8)';
-            if (val >= 75) return 'rgba(245, 158, 11, 0.8)';
-            return 'rgba(239, 68, 68, 0.8)';
-        });
-        efficiencyChart.data.datasets[0].borderColor = data.values.map(val => {
-            if (val >= 85) return '#10b981';
-            if (val >= 75) return '#f59e0b';
-            return '#ef4444';
-        });
-        
-        efficiencyChart.update();
-    }
-}
 
         // ===== INITIALIZATION =====
-        // Replace the existing initializeDashboard function with this:
-function initializeDashboard() {
-    updateStats();
-    renderAlerts();
-    renderDevices();
-    initializeCharts();
-    
-    // Fetch initial data from backend
-    fetchDashboardData();
-    fetchDevicesData();
-    fetchAlertsData();
-    
-    // Initialize WebSocket for real-time updates
-    initializeWebSocket();
-    
-    // Fallback polling if WebSocket not available (optional)
-    setInterval(() => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            fetchDashboardData();
+        function initializeDashboard() {
+            updateStats();
+            renderAlerts();
+            renderDevices();
+            initializeCharts();
+            simulateRealTimeUpdates();
+            // initializeWebSocket(); // Uncomment when backend is ready
+            // fetchDashboardData(); // Uncomment when API is ready
         }
-    }, 30000); // Poll every 30 seconds
-}
-// ===== AUTHENTICATION =====
-window.authToken = null;
-
-async function login(email, password) {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.AUTH.LOGIN, {
-            method: 'POST',
-            body: JSON.stringify({ email, password })
-        });
-        
-        if (data.token) {
-            window.authToken = data.token;
-            console.log('✅ Login successful');
-            return true;
-        }
-    } catch (error) {
-        console.error('❌ Login failed:', error);
-        return false;
-    }
-}
-
-async function register(email, password, name) {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.AUTH.REGISTER, {
-            method: 'POST',
-            body: JSON.stringify({ email, password, name })
-        });
-        
-        console.log('✅ Registration successful');
-        return true;
-    } catch (error) {
-        console.error('❌ Registration failed:', error);
-        return false;
-    }
-}
-
-async function logout() {
-    try {
-        await apiRequest(API_CONFIG.ENDPOINTS.AUTH.LOGOUT, {
-            method: 'POST'
-        });
-        
-        window.authToken = null;
-        if (ws) {
-            ws.close();
-        }
-        console.log('✅ Logout successful');
-    } catch (error) {
-        console.error('❌ Logout failed:', error);
-    }
-}
-
-async function verifyAuth() {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.AUTH.VERIFY);
-        return data.authenticated === true;
-    } catch (error) {
-        return false;
-    }
-}
         
         // ===== ON PAGE LOAD =====
         window.addEventListener('DOMContentLoaded', () => {
@@ -2255,21 +1998,22 @@ async function verifyAuth() {
     }
     
     // Live fetch mode (commented example)
-async function fetchAnalyticsData() {
-    try {
-        const data = await apiRequest(API_CONFIG.ENDPOINTS.ANALYTICS);
-        
-        if (data && data.timestamps) {
-            updateAnalytics(data);
-        }
-    } catch (error) {
-        console.error('Error fetching analytics data:', error);
-        // Fallback to demo data if API fails
-        if (demoModeActive) {
-            injectDemoData();
+    async function fetchAnalyticsData() {
+        try {
+            // Uncomment when backend is ready:
+            // const response = await fetch('/api/metrics');
+            // if (!response.ok) throw new Error('Failed to fetch analytics data');
+            // const data = await response.json();
+            // updateAnalytics(data);
+            
+            // For now, use demo data
+            if (demoModeActive) {
+                injectDemoData();
+            }
+        } catch (error) {
+            console.error('Error fetching analytics data:', error);
         }
     }
-}
     
     // Toggle demo mode
     function toggleDemoMode() {
