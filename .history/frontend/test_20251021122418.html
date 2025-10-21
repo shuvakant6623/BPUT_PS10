@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar PV Intelligence System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+
+    /* ===== ANALYTICS PAGE STYLES ===== */
+    #analytics-panel {
+        display: none;
+    }
+    
+    #analytics-panel.active {
+        display: block;
+    }
+    
+    .analytics-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        border-radius: 16px;
+    }
+    
+    body.light-mode .analytics-header {
+        background: var(--light-card);
+        border-color: var(--light-border);
+    }
+    
+    #analytics-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .control-button {
+        padding: 0.5rem 1rem;
+        background: rgba(34, 211, 238, 0.2);
+        border: 1px solid var(--cyan-glow);
+        border-radius: 8px;
+        color: var(--cyan-glow);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .control-button:hover {
+        background: rgba(34, 211, 238, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    body.light-mode .control-button {
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--electric-blue);
+        border-color: var(--electric-blue);
+    }
+    
+    .analytics-charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .analytics-chart-card {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    body.light-mode .analytics-chart-card {
+        background: var(--light-card);
+        border-color: var(--light-border);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .analytics-chart-card:hover {
+        border-color: var(--cyan-glow);
+        box-shadow: 0 10px 30px rgba(34, 211, 238, 0.2);
+    }
+    
+    .analytics-chart-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.2rem;
+        color: var(--cyan-glow);
+        margin-bottom: 1rem;
+    }
+    
+    body.light-mode .analytics-chart-title {
+        color: var(--electric-blue);
+    }
+    
+    .analytics-chart-canvas {
+        width: 100% !important;
+        height: 300px !important;
+    }
+    
+    /* ===== ALERTS PANEL STYLES ===== */
+    #alerts-panel {
+        margin-top: 2rem;
+    }
+    
+    .alerts-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .alerts-panel-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        color: var(--cyan-glow);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    body.light-mode .alerts-panel-title {
+        color: var(--electric-blue);
+    }
+    
+    #alerts-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 0.5rem;
+        background: var(--danger-red);
+        color: white;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+    
+    .alerts-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .alert-action-btn {
+        padding: 0.5rem 1rem;
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid var(--danger-red);
+        border-radius: 8px;
+        color: var(--danger-red);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .alert-action-btn:hover {
+        background: rgba(239, 68, 68, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .alerts-container {
+        display: grid;
+        gap: 1rem;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .alert-card {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(10px);
+        border-left: 4px solid;
+        border-radius: 8px;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        animation: slideIn 0.3s ease;
+    }
+    
+    body.light-mode .alert-card {
+        background: var(--light-card);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .alert-card:hover {
+        transform: translateX(5px);
+        box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .alert-card.severity-INFO {
+        border-left-color: var(--success-green);
+    }
+    
+    .alert-card.severity-WARN {
+        border-left-color: var(--warning-orange);
+    }
+    
+    .alert-card.severity-CRITICAL {
+        border-left-color: var(--danger-red);
+    }
+    
+    .alert-content-wrapper {
+        flex: 1;
+    }
+    
+    .alert-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .alert-severity-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .alert-severity-badge.severity-INFO {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--success-green);
+    }
+    
+    .alert-severity-badge.severity-WARN {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning-orange);
+    }
+    
+    .alert-severity-badge.severity-CRITICAL {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger-red);
+    }
+    
+    .alert-metric {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--cyan-glow);
+    }
+    
+    body.light-mode .alert-metric {
+        color: var(--light-text);
+    }
+    
+    .alert-details {
+        font-size: 0.9rem;
+        color: var(--cool-gray);
+        margin-top: 0.5rem;
+    }
+    
+    .alert-value {
+        font-weight: 700;
+        color: var(--solar-yellow);
+    }
+    
+    .alert-timestamp {
+        font-size: 0.8rem;
+        color: var(--cool-gray);
+        opacity: 0.7;
+        margin-top: 0.5rem;
+    }
+    
+    .alert-dismiss {
+        background: transparent;
+        border: none;
+        color: var(--cool-gray);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .alert-dismiss:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger-red);
+    }
+    
+    .alerts-empty {
+        text-align: center;
+        padding: 3rem;
+        color: var(--cool-gray);
+        font-size: 1.1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .analytics-charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+        /* ===== GLOBAL RESET & VARIABLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-navy: #0f172a;
+            --darker-navy: #020617;
+            --cyan-glow: #22d3ee;
+            --solar-yellow: #facc15;
+            --electric-blue: #38bdf8;
+            --cool-gray: #94a3b8;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            
+            /* Light mode colors */
+            --light-bg: #f8fafc;
+            --light-card: #ffffff;
+            --light-text: #0f172a;
+            --light-border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--darker-navy);
+            color: var(--cool-gray);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-mode {
+            background: var(--light-bg);
+            color: var(--light-text);
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .solar-particle {
+            position: absolute;
+            background: radial-gradient(circle, var(--solar-yellow) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            33% { transform: translate(30px, -50px) scale(1.2); opacity: 0.6; }
+            66% { transform: translate(-20px, -80px) scale(0.8); opacity: 0.4; }
+        }
+
+        /* ===== LANDING PAGE ===== */
+        .landing-page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .landing-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--solar-yellow) 0%, var(--cyan-glow) 50%, var(--electric-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: glow-pulse 3s ease-in-out infinite;
+            text-shadow: 0 0 40px rgba(34, 211, 238, 0.5);
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 20px var(--cyan-glow)); }
+            50% { filter: brightness(1.3) drop-shadow(0 0 40px var(--solar-yellow)); }
+        }
+
+        .landing-tagline {
+            font-size: 1.5rem;
+            color: var(--cool-gray);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, var(--electric-blue), var(--cyan-glow));
+            border: 2px solid var(--cyan-glow);
+            border-radius: 50px;
+            color: var(--dark-navy);
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.5);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 50px rgba(34, 211, 238, 0.8);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* ===== DASHBOARD LAYOUT ===== */
+        .dashboard-container {
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-container.active {
+            display: block;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(34, 211, 238, 0.2);
+            padding: 2rem 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        body.light-mode .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-right: 1px solid var(--light-border);
+        }
+
+        .sidebar-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 0 2rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--solar-yellow), var(--cyan-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            color: var(--cool-gray);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--cyan-glow);
+            border-left-color: var(--cyan-glow);
+            box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.1);
+        }
+
+        .nav-icon {
+            margin-right: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--cyan-glow);
+        }
+
+        body.light-mode .header-title {
+            color: var(--electric-blue);
+        }
+
+        /* ===== THEME TOGGLE ===== */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--slate-700);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 2px solid var(--cyan-glow);
+        }
+
+        body.light-mode .theme-toggle {
+            background: var(--light-border);
+            border-color: var(--electric-blue);
+        }
+
+        .theme-toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: var(--cyan-glow);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        body.light-mode .theme-toggle-slider {
+            transform: translateX(30px);
+            background: var(--solar-yellow);
+            box-shadow: 0 0 10px var(--solar-yellow);
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.light-mode .stat-card {
+            background: var(--light-card);
+            border-color: var(--light-border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyan-glow), var(--electric-blue));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(34, 211, 238, 0.3);
+            border-color: var(--cyan-glow);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--cyan-glow);
+            margin-bottom: 0.25rem;
+        }
+
+        body.light-mode .stat-value {
+            color: var(--electric-blue);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--cool-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== CHART CARDS ===== */
+        .chart-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .chart-card {
+            background: var(--light-card);
+            border-color: var(--light-border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card:hover {
+            border-color: var(--cyan-glow);
+            box-shadow: 0 10px 30px rgba(34, 211, 238, 0.2);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--cyan-glow);
+        }
+
+        body.light-mode .chart-title {
+            color: var(--electric-blue);
+        }
+
+        .chart-canvas {
+            width: 100% !important;
+            height: 300px !important;
+            max-width: 100%;
+        }
+
+        .chart-card canvas {
+            display: block;
+            box-sizing: border-box;
+        }
+
+        /* ===== ALERT CARDS ===== */
+        .alerts-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--cyan-glow);
+            margin-bottom: 1rem;
+        }
+
+        body.light-mode .section-title {
+            color: var(--electric-blue);
+        }
+
+        .alerts-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .alert-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode .alert-card {
+            background: var(--light-card);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-card.critical {
+            border-left-color: var(--danger-red);
+        }
+
+        .alert-card.warning {
+            border-left-color: var(--warning-orange);
+        }
+
+        .alert-card.info {
+            border-left-color: var(--success-green);
+        }
+
+        .alert-card:hover {
+            transform: translateX(5px);
+            box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .alert-icon {
+            font-size: 2rem;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            color: var(--cool-gray);
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: var(--cool-gray);
+            opacity: 0.7;
+        }
+
+        /* ===== DEVICES PAGE ===== */
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .device-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        body.light-mode .device-card {
+            background: var(--light-card);
+            border-color: var(--light-border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(34, 211, 238, 0.3);
+        }
+
+        .device-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .device-status.online {
+            background: var(--success-green);
+            box-shadow: 0 0 10px var(--success-green);
+        }
+
+        .device-status.offline {
+            background: var(--danger-red);
+            box-shadow: 0 0 10px var(--danger-red);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .device-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--cyan-glow);
+            margin-bottom: 1rem;
+        }
+
+        body.light-mode .device-name {
+            color: var(--electric-blue);
+        }
+
+        .device-metrics {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .device-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+        }
+
+        body.light-mode .device-metric {
+            background: var(--light-bg);
+        }
+
+        .metric-label {
+            color: var(--cool-gray);
+            font-size: 0.9rem;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--cyan-glow);
+        }
+
+        body.light-mode .metric-value {
+            color: var(--electric-blue);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .landing-logo {
+                font-size: 2.5rem;
+            }
+
+            .landing-tagline {
+                font-size: 1.1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(34, 211, 238, 0.3);
+            border-top-color: var(--cyan-glow);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <!-- ===== LANDING PAGE ===== -->
+    <div class="landing-page" id="landingPage">
+        <h1 class="landing-logo">SOLAR PV INTELLIGENCE</h1>
+        <p class="landing-tagline">
+            AI-Powered IoT Monitoring System | Detecting 10-30% Efficiency Losses Across India's Solar Infrastructure
+        </p>
+        <button class="cta-button" onclick="enterDashboard()">
+            <span>⚡ ENTER DASHBOARD</span>
+        </button>
+    </div>
+
+    <!-- ===== DASHBOARD CONTAINER ===== -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">☀️ SOLAR PV</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="devices">
+                        <span class="nav-icon">🔌</span>
+                        <span>Devices</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="analytics">
+                        <span class="nav-icon">📈</span>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="alerts">
+                        <span class="nav-icon">⚠️</span>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title" id="pageTitle">Real-Time Dashboard</h1>
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <div class="theme-toggle-slider"></div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="totalPower">0 kW</div>
+                        <div class="stat-label">Total Power Output</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="efficiency">0%</div>
+                        <div class="stat-label">System Efficiency</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔌</div>
+                        <div class="stat-value" id="activeDevices">0</div>
+                        <div class="stat-label">Active Devices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="savings">₹0</div>
+                        <div class="stat-label">Today's Savings</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="chart-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Power Generation (24h)</h3>
+                            <span class="loading" id="powerChartLoader"></span>
+                        </div>
+                        <canvas id="powerChart" class="chart-canvas"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Efficiency Trends</h3>
+                            <span class="loading" id="efficiencyChartLoader"></span>
+                        </div>
+                        <canvas id="efficiencyChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Alerts Section -->
+                <div class="alerts-section">
+                    <h2 class="section-title">⚠️ Predictive Maintenance Alerts</h2>
+                    <div class="alerts-grid" id="alertsContainer">
+                        <!-- Alerts will be dynamically inserted -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Devices Page -->
+            <div id="devicesPage" class="page-content" style="display: none;">
+                <div class="devices-grid" id="devicesContainer">
+                    <!-- Device cards will be dynamically inserted -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ===== BACKGROUND ANIMATION =====
+        function createSolarParticles() {
+            const container = document.getElementById('bgAnimation');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'solar-particle';
+                particle.style.width = Math.random() * 100 + 50 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // ===== NAVIGATION =====
+        function enterDashboard() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('dashboardContainer').classList.add('active');
+            initializeDashboard();
+        }
+
+        // ===== THEME TOGGLE =====
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            if (typeof Storage !== 'undefined') {
+                const themePreference = isLight ? 'light' : 'dark';
+                // Note: localStorage would normally be used here, but we're using a variable for compatibility
+                window.themePreference = themePreference;
+            }
+        }
+
+        // Load theme preference
+        function loadTheme() {
+            if (typeof Storage !== 'undefined' && window.themePreference === 'light') {
+                document.body.classList.add('light-mode');
+            }
+        }
+
+        // ===== PAGE NAVIGATION =====
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.dataset.page;
+                
+                // Update active link
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Show corresponding page
+                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+                const pageElement = document.getElementById(page + 'Page');
+                if (pageElement) {
+                    pageElement.style.display = 'block';
+                }
+                
+                // Update title
+                const titles = {
+                    dashboard: 'Real-Time Dashboard',
+                    devices: 'Connected Devices',
+                    analytics: 'Performance Analytics',
+                    alerts: 'System Alerts'
+                };
+                document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
+            });
+        });
+
+        // ===== MOCK DATA =====
+        const mockSensorData = {
+            power: 125.6,
+            efficiency: 87.3,
+            activeDevices: 24,
+            savings: 4850,
+            temperature: 32.5,
+            voltage: 240.2,
+            current: 15.8,
+            irradiance: 850
+        };
+
+        const mockAlerts = [
+            {
+                id: 1,
+                severity: 'critical',
+                icon: '🔴',
+                title: 'Panel Degradation Detected',
+                message: 'Panel #12 showing 18% efficiency loss. Immediate inspection recommended.',
+                time: '2 minutes ago'
+            },
+            {
+                id: 2,
+                severity: 'warning',
+                icon: '🟡',
+                title: 'Voltage Fluctuation',
+                message: 'Array B experiencing voltage instability. Monitor for 24 hours.',
+                time: '15 minutes ago'
+            },
+            {
+                id: 3,
+                severity: 'info',
+                icon: '🟢',
+                title: 'Predictive Maintenance Due',
+                message: 'Panel cleaning scheduled in 3 days for optimal performance.',
+                time: '1 hour ago'
+            }
+        ];
+
+        const mockDevices = [
+            {
+                id: 'PV-001',
+                name: 'Solar Array A1',
+                status: 'online',
+                power: 45.2,
+                efficiency: 89.5,
+                temperature: 31.8,
+                uptime: '99.8%'
+            },
+            {
+                id: 'PV-002',
+                name: 'Solar Array A2',
+                status: 'online',
+                power: 42.8,
+                efficiency: 85.2,
+                temperature: 33.1,
+                uptime: '98.5%'
+            },
+            {
+                id: 'PV-003',
+                name: 'Solar Array B1',
+                status: 'offline',
+                power: 0,
+                efficiency: 0,
+                temperature: 28.5,
+                uptime: '95.2%'
+            },
+            {
+                id: 'PV-004',
+                name: 'Solar Array B2',
+                status: 'online',
+                power: 37.6,
+                efficiency: 82.1,
+                temperature: 32.9,
+                uptime: '99.1%'
+            }
+        ];
+
+        // ===== CHART INITIALIZATION =====
+        let powerChart, efficiencyChart;
+
+        function initializeCharts() {
+            const isDark = !document.body.classList.contains('light-mode');
+            const textColor = isDark ? '#94a3b8' : '#0f172a';
+            const gridColor = isDark ? 'rgba(34, 211, 238, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+            // Power Generation Chart
+            const powerCtx = document.getElementById('powerChart').getContext('2d');
+            const powerData = generateMockTimeSeriesData(24);
+            
+            powerChart = new Chart(powerCtx, {
+                type: 'line',
+                data: {
+                    labels: powerData.labels,
+                    datasets: [{
+                        label: 'Power Output (kW)',
+                        data: powerData.values,
+                        borderColor: '#22d3ee',
+                        backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#22d3ee',
+                        pointBorderColor: '#0f172a',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            borderColor: '#22d3ee',
+                            borderWidth: 1,
+                            titleColor: '#22d3ee',
+                            bodyColor: '#94a3b8',
+                            padding: 12,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return value + ' kW';
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            // Efficiency Chart
+            const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+            const efficiencyData = generateMockTimeSeriesData(24, 70, 95);
+            
+            efficiencyChart = new Chart(efficiencyCtx, {
+                type: 'bar',
+                data: {
+                    labels: efficiencyData.labels,
+                    datasets: [{
+                        label: 'Efficiency (%)',
+                        data: efficiencyData.values,
+                        backgroundColor: efficiencyData.values.map(val => {
+                            if (val >= 85) return 'rgba(16, 185, 129, 0.8)';
+                            if (val >= 75) return 'rgba(245, 158, 11, 0.8)';
+                            return 'rgba(239, 68, 68, 0.8)';
+                        }),
+                        borderColor: efficiencyData.values.map(val => {
+                            if (val >= 85) return '#10b981';
+                            if (val >= 75) return '#f59e0b';
+                            return '#ef4444';
+                        }),
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            borderColor: '#22d3ee',
+                            borderWidth: 1,
+                            titleColor: '#22d3ee',
+                            bodyColor: '#94a3b8',
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Efficiency: ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('powerChartLoader').style.display = 'none';
+            document.getElementById('efficiencyChartLoader').style.display = 'none';
+        }
+
+        function generateMockTimeSeriesData(points, min = 80, max = 150) {
+            const labels = [];
+            const values = [];
+            const now = new Date();
+            
+            for (let i = points - 1; i >= 0; i--) {
+                const time = new Date(now - i * 3600000);
+                labels.push(time.getHours() + ':00');
+                values.push(Math.random() * (max - min) + min);
+            }
+            
+            return { labels, values };
+        }
+
+        // ===== UPDATE STATS =====
+        function updateStats() {
+            document.getElementById('totalPower').textContent = mockSensorData.power.toFixed(1) + ' kW';
+            document.getElementById('efficiency').textContent = mockSensorData.efficiency.toFixed(1) + '%';
+            document.getElementById('activeDevices').textContent = mockSensorData.activeDevices;
+            document.getElementById('savings').textContent = '₹' + mockSensorData.savings.toLocaleString();
+        }
+
+        // ===== RENDER ALERTS =====
+        function renderAlerts() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = mockAlerts.map(alert => `
+                <div class="alert-card ${alert.severity}">
+                    <div class="alert-icon">${alert.icon}</div>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-message">${alert.message}</div>
+                    </div>
+                    <div class="alert-time">${alert.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // ===== RENDER DEVICES =====
+        function renderDevices() {
+            const container = document.getElementById('devicesContainer');
+            container.innerHTML = mockDevices.map(device => `
+                <div class="device-card">
+                    <div class="device-status ${device.status}"></div>
+                    <h3 class="device-name">${device.name}</h3>
+                    <div class="device-metrics">
+                        <div class="device-metric">
+                            <span class="metric-label">Power Output</span>
+                            <span class="metric-value">${device.power.toFixed(1)} kW</span>
+                        </div>
+                        <div class="device-metric">
+                            <span class="metric-label">Efficiency</span>
+                            <span class="metric-value">${device.efficiency.toFixed(1)}%</span>
+                        </div>
+                        <div class="device-metric">
+                            <span class="metric-label">Temperature</span>
+                            <span class="metric-value">${device.temperature}°C</span>
+                        </div>
+                        <div class="device-metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value">${device.uptime}</span>
+                        </div>
+                        <div class="device-metric">
+                            <span class="metric-label">Status</span>
+                            <span class="metric-value">${device.status.toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== REAL-TIME UPDATES (Simulated) =====
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Simulate data changes
+                mockSensorData.power += (Math.random() - 0.5) * 5;
+                mockSensorData.efficiency += (Math.random() - 0.5) * 2;
+                mockSensorData.power = Math.max(80, Math.min(150, mockSensorData.power));
+                mockSensorData.efficiency = Math.max(70, Math.min(95, mockSensorData.efficiency));
+                
+                updateStats();
+                
+                // Update charts with new data point
+                if (powerChart && efficiencyChart) {
+                    const now = new Date();
+                    const timeLabel = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0');
+                    
+                    // Update power chart - maintain fixed 24 data points
+                    if (powerChart.data.labels.length >= 24) {
+                        powerChart.data.labels.shift();
+                        powerChart.data.datasets[0].data.shift();
+                    }
+                    powerChart.data.labels.push(timeLabel);
+                    powerChart.data.datasets[0].data.push(mockSensorData.power);
+                    powerChart.update('none');
+                    
+                    // Update efficiency chart - maintain fixed 24 data points
+                    if (efficiencyChart.data.labels.length >= 24) {
+                        efficiencyChart.data.labels.shift();
+                        efficiencyChart.data.datasets[0].data.shift();
+                    }
+                    efficiencyChart.data.labels.push(timeLabel);
+                    efficiencyChart.data.datasets[0].data.push(mockSensorData.efficiency);
+                    
+                    // Update bar colors dynamically
+                    const lastValue = mockSensorData.efficiency;
+                    const lastColor = lastValue >= 85 ? 'rgba(16, 185, 129, 0.8)' : 
+                                     lastValue >= 75 ? 'rgba(245, 158, 11, 0.8)' : 
+                                     'rgba(239, 68, 68, 0.8)';
+                    const lastBorderColor = lastValue >= 85 ? '#10b981' : 
+                                           lastValue >= 75 ? '#f59e0b' : 
+                                           '#ef4444';
+                    
+                    efficiencyChart.data.datasets[0].backgroundColor.push(lastColor);
+                    efficiencyChart.data.datasets[0].borderColor.push(lastBorderColor);
+                    
+                    if (efficiencyChart.data.datasets[0].backgroundColor.length > 24) {
+                        efficiencyChart.data.datasets[0].backgroundColor.shift();
+                        efficiencyChart.data.datasets[0].borderColor.shift();
+                    }
+                    
+                    efficiencyChart.update('none');
+                }
+            }, 5000); // Update every 5 seconds
+        }
+
+        // ===== WEBSOCKET CONNECTION (Placeholder) =====
+        function initializeWebSocket() {
+            // TODO: Replace with your actual WebSocket URL
+            // const ws = new WebSocket('ws://your-backend-url:port/socket');
+            
+            // ws.onopen = () => {
+            //     console.log('WebSocket connected');
+            // };
+            
+            // ws.onmessage = (event) => {
+            //     const data = JSON.parse(event.data);
+            //     // Update UI with real sensor data
+            //     mockSensorData.power = data.power;
+            //     mockSensorData.efficiency = data.efficiency;
+            //     // ... update other fields
+            //     updateStats();
+            // };
+            
+            // ws.onerror = (error) => {
+            //     console.error('WebSocket error:', error);
+            // };
+            
+            // ws.onclose = () => {
+            //     console.log('WebSocket disconnected');
+            //     // Implement reconnection logic
+            // };
+        }
+
+        // ===== FETCH API DATA (Placeholder) =====
+        async function fetchDashboardData() {
+            try {
+                // TODO: Replace with your actual API endpoint
+                // const response = await fetch('https://your-backend-url/api/dashboard');
+                // const data = await response.json();
+                // 
+                // mockSensorData.power = data.totalPower;
+                // mockSensorData.efficiency = data.efficiency;
+                // mockSensorData.activeDevices = data.activeDevices;
+                // mockSensorData.savings = data.savings;
+                // 
+                // updateStats();
+                
+                console.log('Fetch API ready for integration');
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+
+        // ===== INITIALIZATION =====
+        function initializeDashboard() {
+            updateStats();
+            renderAlerts();
+            renderDevices();
+            initializeCharts();
+            simulateRealTimeUpdates();
+            // initializeWebSocket(); // Uncomment when backend is ready
+            // fetchDashboardData(); // Uncomment when API is ready
+        }
+
+        // ===== ON PAGE LOAD =====
+        window.addEventListener('DOMContentLoaded', () => {
+            createSolarParticles();
+            loadTheme();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!-- 
+========================================
+SENSOR CARD COMPONENT
+Reusable card for displaying real-time IoT sensor data
+========================================
+
+USAGE:
+Include this template and call createSensorCard() function with data
+
+EXAMPLE DATA FORMAT:
+{
+    icon: '⚡',
+    title: 'Total Power',
+    value: '48.5',
+    unit: 'kW',
+    color: 'cyan',
+    trend: 'up',
+    trendValue: '+2.5%'
+}
+-->
+
+<script>
+/**
+ * Create a sensor card HTML element
+ * @param {Object} data - Sensor card data
+ * @returns {string} HTML string for the card
+ */
+function createSensorCard(data) {
+    const {
+        icon = '📊',
+        title = 'Sensor',
+        value = '0',
+        unit = '',
+        color = 'cyan',
+        trend = null,
+        trendValue = '',
+        status = 'normal'
+    } = data;
+    
+    // Color class mapping
+    const colorClasses = {
+        cyan: 'text-cyan',
+        yellow: 'text-yellow',
+        blue: 'text-blue',
+        danger: 'text-danger',
+        warning: 'text-warning',
+        success: 'text-success'
+    };
+    
+    // Trend indicators
+    const trendIcons = {
+        up: '📈',
+        down: '📉',
+        stable: '➡️'
+    };
+    
+    const trendColors = {
+        up: 'var(--success)',
+        down: 'var(--danger)',
+        stable: 'var(--cool-gray)'
+    };
+    
+    // Build trend HTML if trend data exists
+    const trendHTML = trend ? `
+        <div class="sensor-trend" style="display: flex; align-items: center; gap: 0.3rem; margin-top: 0.5rem; font-size: 0.9rem; color: ${trendColors[trend]};">
+            <span>${trendIcons[trend]}</span>
+            <span style="font-weight: 600;">${trendValue}</span>
+        </div>
+    ` : '';
+    
+    // Status indicator (for critical alerts)
+    const statusHTML = status !== 'normal' ? `
+        <div class="status-badge" style="position: absolute; top: 1rem; right: 1rem; width: 10px; height: 10px; border-radius: 50%; background: ${status === 'critical' ? 'var(--danger)' : 'var(--warning)'}; box-shadow: 0 0 10px currentColor; animation: pulse 2s infinite;"></div>
+    ` : '';
+    
+    return `
+        <div class="card sensor-card" data-sensor="${title.toLowerCase().replace(/\s+/g, '-')}" style="position: relative;">
+            ${statusHTML}
+            <div class="card-header">
+                <h3 class="card-title" style="font-size: 1rem; font-weight: 600;">${title}</h3>
+                <span class="card-icon" style="font-size: 1.8rem;">${icon}</span>
+            </div>
+            <div class="card-body">
+                <div class="sensor-value" style="font-size: 2.5rem; font-weight: 900; line-height: 1;" class="${colorClasses[color]}">
+                    ${value}<span style="font-size: 1.2rem; margin-left: 0.3rem; opacity: 0.8;">${unit}</span>
+                </div>
+                ${trendHTML}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Update an existing sensor card with new data
+ * @param {string} sensorId - Selector for the sensor card
+ * @param {Object} newData - New sensor data
+ */
+function updateSensorCard(sensorId, newData) {
+    const card = document.querySelector(`[data-sensor="${sensorId}"]`);
+    if (!card) return;
+    
+    const valueElement = card.querySelector('.sensor-value');
+    const trendElement = card.querySelector('.sensor-trend');
+    
+    if (valueElement && newData.value !== undefined) {
+        // Animate value change
+        valueElement.style.transition = 'all 0.3s ease';
+        valueElement.style.transform = 'scale(1.1)';
+        
+        setTimeout(() => {
+            const unitSpan = valueElement.querySelector('span');
+            const unit = unitSpan ? unitSpan.textContent : '';
+            valueElement.innerHTML = `${newData.value}<span style="font-size: 1.2rem; margin-left: 0.3rem; opacity: 0.8;">${unit}</span>`;
+            valueElement.style.transform = 'scale(1)';
+        }, 150);
+    }
+    
+    if (trendElement && newData.trendValue) {
+        trendElement.querySelector('span:last-child').textContent = newData.trendValue;
+    }
+}
+
+/**
+ * Create multiple sensor cards from an array
+ * @param {Array} sensorsData - Array of sensor data objects
+ * @param {string} containerId - ID of container element
+ */
+function renderSensorCards(sensorsData, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = sensorsData.map(data => createSensorCard(data)).join('');
+}
+
+/**
+ * Example sensor data for testing
+ */
+const exampleSensorData = [
+    {
+        icon: '⚡',
+        title: 'Total Power',
+        value: '48.5',
+        unit: 'kW',
+        color: 'cyan',
+        trend: 'up',
+        trendValue: '+2.5%'
+    },
+    {
+        icon: '🌡️',
+        title: 'Avg Temperature',
+        value: '42.3',
+        unit: '°C',
+        color: 'danger',
+        trend: 'up',
+        trendValue: '+1.2°C',
+        status: 'warning'
+    },
+    {
+        icon: '☀️',
+        title: 'Solar Irradiance',
+        value: '856',
+        unit: 'W/m²',
+        color: 'yellow',
+        trend: 'stable',
+        trendValue: '0%'
+    },
+    {
+        icon: '📊',
+        title: 'System Efficiency',
+        value: '92.8',
+        unit: '%',
+        color: 'success',
+        trend: 'down',
+        trendValue: '-0.3%'
+    },
+    {
+        icon: '🔋',
+        title: 'Battery Level',
+        value: '87',
+        unit: '%',
+        color: 'blue',
+        trend: 'down',
+        trendValue: '-5%'
+    },
+    {
+        icon: '⚙️',
+        title: 'Active Devices',
+        value: '10',
+        unit: '/12',
+        color: 'cyan',
+        trend: 'stable',
+        trendValue: '0'
+    }
+];
+</script>
+
+<style>
+/* Sensor Card Specific Styles */
+.sensor-card {
+    transition: all 0.3s ease;
+}
+
+.sensor-card:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+.sensor-value {
+    transition: all 0.3s ease;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sensor-card .card-title {
+        font-size: 0.9rem;
+    }
+    
+    .sensor-value {
+        font-size: 2rem !important;
+    }
+}
+</style>

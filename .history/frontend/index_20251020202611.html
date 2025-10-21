@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SolarAI - Intelligent PV Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="landing-page">
+    <!-- Animated background -->
+    <div class="bg-animation">
+        <div class="solar-particle"></div>
+        <div class="solar-particle"></div>
+        <div class="solar-particle"></div>
+        <div class="solar-particle"></div>
+        <div class="solar-particle"></div>
+    </div>
+
+    <!-- Landing content -->
+    <div class="landing-container">
+        <div class="landing-content">
+            <!-- Logo and branding -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="40" r="35" stroke="url(#gradient1)" stroke-width="3"/>
+                        <circle cx="40" cy="40" r="20" fill="url(#gradient2)"/>
+                        <path d="M40 10 L40 30 M40 50 L40 70 M10 40 L30 40 M50 40 L70 40" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M18 18 L28 28 M52 52 L62 62 M62 18 L52 28 M28 52 L18 62" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0" y1="0" x2="80" y2="80">
+                                <stop offset="0%" stop-color="#22d3ee"/>
+                                <stop offset="100%" stop-color="#facc15"/>
+                            </linearGradient>
+                            <radialGradient id="gradient2" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#facc15"/>
+                                <stop offset="100%" stop-color="#f97316"/>
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1 class="brand-name">Solar<span class="brand-ai">AI</span></h1>
+            </div>
+
+            <!-- Tagline -->
+            <p class="tagline">Intelligent Photovoltaic Monitoring System</p>
+            <p class="subtitle">AI-Powered · Real-Time Analytics · Predictive Maintenance</p>
+
+            <!-- Feature highlights -->
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <p>Live Monitoring</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <p>AI Predictions</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <p>IoT Integration</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔔</div>
+                    <p>Smart Alerts</p>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <button class="cta-button" onclick="window.location.href='page'">
+                <span class="button-text">Enter Dashboard</span>
+                <span class="button-glow"></span>
+            </button>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">10-30%</div>
+                    <div class="stat-label">Efficiency Boost</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Monitoring</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">99.9%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <p>Powered by Advanced IoT & Machine Learning | India's Solar Intelligence Platform</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

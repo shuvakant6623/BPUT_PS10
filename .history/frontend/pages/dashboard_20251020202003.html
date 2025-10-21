@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SolarAI Monitoring</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="35" stroke="url(#gradient1)" stroke-width="3"/>
+                    <circle cx="40" cy="40" r="20" fill="url(#gradient2)"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0" y1="0" x2="80" y2="80">
+                            <stop offset="0%" stop-color="#22d3ee"/>
+                            <stop offset="100%" stop-color="#facc15"/>
+                        </linearGradient>
+                        <radialGradient id="gradient2" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#facc15"/>
+                            <stop offset="100%" stop-color="#f97316"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+                <h2>SolarAI</h2>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="devices.html" class="nav-link">
+                            <span class="nav-icon">🔌</span>
+                            <span>Devices</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#analytics" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#alerts" class="nav-link">
+                            <span class="nav-icon">🔔</span>
+                            <span>Alerts</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <h1 class="page-title">System Dashboard</h1>
+                <div class="top-bar-actions">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <div class="user-info" style="color: var(--text-secondary); font-size: 0.95rem;">
+                        <span>Last Updated: <span id="lastUpdate">--:--</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-Time Stats Grid -->
+            <div class="grid-4" id="statsGrid">
+                <!-- Stats cards will be loaded here from sensorCard.html template -->
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid-2">
+                <!-- Power Generation Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚡ Power Generation (kW)</h3>
+                        <span class="card-icon">📈</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="powerChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Efficiency Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 System Efficiency (%)</h3>
+                        <span class="card-icon">💯</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="efficiencyChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperature & Irradiance Chart -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🌡️ Temperature Monitoring (°C)</h3>
+                        <span class="card-icon">🔥</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="temperatureChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">☀️ Solar Irradiance (W/m²)</h3>
+                        <span class="card-icon">🌞</span>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="irradianceChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🔔 Predictive Maintenance Alerts</h3>
+                    <span class="card-icon">⚠️</span>
+                </div>
+                <div class="card-body" id="alertsContainer">
+                    <!-- Alerts will be dynamically loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../script.js"></script>
+    <script src="../socket.js"></script>
+    <script src="../utils/useFetch.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+            loadSensorCards();
+            loadAlerts();
+            startWebSocketConnection();
+        });
+    </script>
+</body>
+</html>
